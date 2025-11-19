@@ -4,9 +4,9 @@ import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import Colors from '../../src/constants/Colors';
+import { useColorScheme } from '../../src/components/useColorScheme';
+import { useClientOnlyValue } from '../../src/components/useClientOnlyValue';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof Feather>['name'];
@@ -28,22 +28,17 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t('journal'),
+          title: t('Dashboard'),
           tabBarIcon: ({ color }) => <TabBarIcon name="book-open" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <Feather
-                    name="info"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          
+        }}
+      />
+      <Tabs.Screen
+        name="journal"
+        options={{
+          title: t('Journal'),
+          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+          
         }}
       />
       <Tabs.Screen

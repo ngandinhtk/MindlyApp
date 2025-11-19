@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
-import { emotions } from '../../data/emotions';
-import WeeklySummary from '../../components/WeeklySummary';
+import { emotions } from '../../src/data/emotions';
+import WeeklySummary from '../../src/components/WeeklySummary';
 
 interface EmotionStat {
   id: string;
@@ -51,7 +51,7 @@ export default function InsightsScreen() {
           percentage: Math.round(((count as number) / totalEntries) * 100),
           label: emotionDetails?.label || 'Unknown',
           emoji: emotionDetails?.emoji || '❓',
-          color: emotionDetails?.color || 'bg-gray-200', // Assuming color is a Tailwind class
+          color: emotionDetails?.graphColor || 'bg-gray-200', // Assuming color is a Tailwind class
         };
       })
       .sort((a, b) => b.count - a.count);

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, Imag
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
-import { emotions } from '../../data/emotions';
+import { emotions } from '../../src/data/emotions';
 import { useRouter } from 'expo-router';
 
 interface UserData {

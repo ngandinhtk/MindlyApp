@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
-import { emotions } from '../../data/emotions';
-import EmotionStats from '../../components/EmotionStats';
+import { emotions } from '../../src/data/emotions';
+import EmotionStats from '../../src/components/EmotionStats';
+import WeeklySummary from '@/src/components/WeeklySummary';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
+import { TrendingUp, Calendar } from 'lucide-react-native';
+// import Calendar from '../../components/Calendar/Calendar';
 
 // Type definitions
 interface Entry {
@@ -13,82 +16,11 @@ interface Entry {
   note?: string;
 }
 
-// Calendar Component (remains the same)
-const Calendar = ({ entries, onDateSelect, selectedDate, currentMonth, setCurrentMonth }) => {
-    const { t } = useTranslation();
-
-    const daysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    const firstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-
-    const getEmotionForDate = (date: Date) => {
-        const entry = entries.find(e => new Date(e.date).toDateString() === date.toDateString());
-        return entry?.emotion || null;
-    };
-
-    const changeMonth = (delta: number) => {
-        setCurrentMonth(prev => {
-            const newDate = new Date(prev);
-            newDate.setMonth(prev.getMonth() + delta);
-            return newDate;
-        });
-    };
-
-    const renderCalendar = () => {
-        const days = [];
-        const totalDays = daysInMonth(currentMonth);
-        const firstDay = firstDayOfMonth(currentMonth);
-
-        for (let i = 0; i < firstDay; i++) {
-            days.push(<View key={`empty-${i}`} className="w-[14.28%] h-12" />);
-        }
-
-        for (let day = 1; day <= totalDays; day++) {
-            const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-            const emotionId = getEmotionForDate(date);
-            const emotionObject = emotions.find(e => e.id === emotionId);
-            const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
-            const isToday = date.toDateString() === new Date().toDateString();
-
-            days.push(
-                <TouchableOpacity
-                    key={day}
-                    onPress={() => onDateSelect(date)}
-                    className={`w-[14.28%] h-12 items-center justify-center ${isSelected ? 'border-2 border-purple-500 rounded-full' : ''}`}
-                >
-                    <View
-                        className={`w-8 h-8 rounded-full items-center justify-center ${isToday ? 'border-2 border-purple-500' : ''}`}
-                        style={{ backgroundColor: emotionObject ? emotionObject.graphColor : 'transparent' }}
-                    >
-                        {emotionObject ? <Text className="text-2xl">{emotionObject.emoji}</Text> : <Text>{day}</Text>}
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-        return days;
-    };
-
-    return (
-        <View className="bg-white rounded-3xl shadow-lg p-6">
-            <View className="flex-row justify-between items-center mb-6">
-                <TouchableOpacity onPress={() => changeMonth(-1)} className="p-2"><Text>←</Text></TouchableOpacity>
-                <Text className="text-lg font-bold">{currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Text>
-                <TouchableOpacity onPress={() => changeMonth(1)} className="p-2"><Text>→</Text></TouchableOpacity>
-            </View>
-            <View className="flex-row flex-wrap">
-                {[t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')].map(day => (
-                    <View key={day} className="w-[14.28%] h-10 items-center justify-center">
-                        <Text className="text-sm font-medium text-gray-800">{day}</Text>
-                    </View>
-                ))}
-                {renderCalendar()}
-            </View>
-        </View>
-    );
-};
 
 const HomeScreen = () => {
   const { t, i18n } = useTranslation();
   const [entries, setEntries] = useState<Entry[]>([]);
+  
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [dailyQuote, setDailyQuote] = useState<{ text: string; author: string } | null>(null);
@@ -110,8 +42,8 @@ const HomeScreen = () => {
     }
     try {
       const lang = i18n.language.split('-')[0];
-      const quotesModule = lang === 'vi' ? await import('../../data/quotes_vi.js') : await import('../../data/quotes_en.js');
-      const activitiesModule = lang === 'vi' ? await import('../../data/activities_vi.js') : await import('../../data/activities_en.js');
+      const quotesModule = lang === 'vi' ? await import('../../src/data/quotes_vi.js') : await import('../../src/data/quotes_en.js');
+      const activitiesModule = lang === 'vi' ? await import('../../src/data/activities_vi.js') : await import('../../src/data/activities_en.js');
       setActivities(activitiesModule.activities);
       const quotes = quotesModule.quotes;
       const today = new Date().getDate();
@@ -152,6 +84,10 @@ const HomeScreen = () => {
     setNote('');
   };
 
+
+  
+ 
+
   const getRandomActivity = (emotion: string) => {
     if (!emotion || !activities[emotion]) return null;
     const emotionActivities = activities[emotion];
@@ -166,11 +102,11 @@ const HomeScreen = () => {
   const selectedEntries = getSelectedEntries();
 
   return (
-    <ScrollView className="flex-1 bg-gray-100">
-      <View className="p-4">
+    <ScrollView className="flex-1 bg-green-200">
+      <View className="p-4 border-8 border-red-500">
         {/* Greeting */}
         <View className="px-4 pt-4 mb-6">
-            <Text className="text-2xl font-bold text-gray-800 mb-1">{t('greeting')}<Text className='italic font-light'>{username || t('mindly_user')}</Text></Text>
+            <Text className="text-4xl font-bold text-red-500 mb-1">{t('greeting')}<Text className='italic font-light'>{username || t('mindly_user')}</Text></Text>
             <Text className="text-gray-500 flex items-center">
                 <Feather name="calendar" className="w-4 h-4 mr-2" />
                 {new Date().toLocaleDateString(i18n.language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -247,35 +183,9 @@ const HomeScreen = () => {
           </View>
         )}
 
-        <Calendar entries={entries} onDateSelect={setSelectedDate} selectedDate={selectedDate} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} />
+        {/* <Calendar entries={entries} onDateSelect={setSelectedDate} selectedDate={selectedDate} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} /> */}
         <EmotionStats entries={entries} currentMonth={currentMonth} />
-
-        {selectedDate && (
-          <View className="bg-white mt-6 p-8 rounded-3xl shadow-lg">
-            <Text className="text-lg font-medium text-gray-700 mb-4">{selectedDate.toLocaleDateString(i18n.language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
-            {selectedEntries.length > 0 ? (
-              <View className="space-y-4">
-                {selectedEntries.map((entry, index) => {
-                  const emotion = emotions.find(e => e.id === entry.emotion);
-                  return (
-                    <View key={index} className="border-b border-gray-200 pb-4">
-                      <View className="flex-row items-center gap-3 mb-2">
-                        <Text className="text-3xl">{emotion?.emoji}</Text>
-                        <View>
-                          <Text className="font-bold text-gray-800">{t(emotion?.label || '')}</Text>
-                          <Text className="text-sm text-gray-500 ml-2">{new Date(entry.date).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}</Text>
-                        </View>
-                      </View>
-                      {entry.note && <Text className="text-gray-600 italic bg-gray-50 p-3 rounded-lg">{entry.note}</Text>}
-                    </View>
-                  );
-                })}
-              </View>
-            ) : (
-              <Text className="text-gray-500">{t('no_entry')}</Text>
-            )}
-          </View>
-        )}
+       <WeeklySummary/>
       </View>
     </ScrollView>
   );

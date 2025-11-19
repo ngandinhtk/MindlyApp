@@ -38,8 +38,24 @@ const EmotionStats: React.FC<Props> = ({ entries, currentMonth }) => {
     return counts;
   };
 
+  const getMostCommonEmotion = () => {
+    let mostCommonEmotionId: string | null = null;
+    let maxCount = -1;
+
+    for (const emotionId in emotionCounts) {
+      if (emotionCounts[emotionId] > maxCount) {
+        maxCount = emotionCounts[emotionId];
+        mostCommonEmotionId = emotionId;
+      }
+    }
+
+    if (!mostCommonEmotionId) return null;
+    return emotions.find(e => e.id === mostCommonEmotionId);
+  };
+
   const emotionCounts = getEmotionCounts();
   const totalEntries = Object.values(emotionCounts).reduce((sum, count) => sum + count, 0);
+  const mostCommonEmotion = getMostCommonEmotion();
 
   if (totalEntries === 0) {
     return null; // Don't render anything if there are no entries for the month
@@ -48,6 +64,17 @@ const EmotionStats: React.FC<Props> = ({ entries, currentMonth }) => {
   return (
     <View className="bg-white rounded-3xl shadow-lg p-6 mt-6">
       <Text className="text-lg font-bold text-gray-700 mb-4">{t('monthly_summary')}</Text>
+      
+      {mostCommonEmotion && (
+        <View className="flex-row items-center bg-purple-50 p-4 rounded-xl mb-4">
+          <Text className="text-2xl mr-4">{mostCommonEmotion.emoji}</Text>
+          <View>
+            <Text className="text-sm font-medium text-purple-800">{t('most_common_emotion')}</Text>
+            <Text className="text-lg font-bold text-purple-900">{t(mostCommonEmotion.id)}</Text>
+          </View>
+        </View>
+      )}
+
       <View className="space-y-2">
         {emotions.map(emotion => {
           const count = emotionCounts[emotion.id];

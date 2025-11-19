@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { emotions } from '../../data/emotions';
-import EmotionStats from '../../components/EmotionStats';
+import { emotions } from '../../src/data/emotions';
+import EmotionStats from '../../src/components/EmotionStats';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 
@@ -123,15 +123,15 @@ const JournalScreen = () => {
       try {
         const lang = i18n.language.split('-')[0];
         const quotesModule = lang === 'vi' 
-            ? await import('../../data/quotes_vi.js') 
-            : await import('../../data/quotes_en.js');
+            ? await import('../../src/data/quotes_vi.js') 
+            : await import('../../src/data/quotes_en.js');
         const quotes = quotesModule.quotes;
         const today = new Date().getDate();
         const quoteIndex = today % quotes.length;
         setDailyQuote(quotes[quoteIndex]);
       } catch (error) {
         console.error("Failed to load quotes:", error);
-        const quotesModule = await import('../../data/quotes_en.js');
+        const quotesModule = await import('../../src/data/quotes_en.js');
         const quotes = quotesModule.quotes;
         const today = new Date().getDate();
         const quoteIndex = today % quotes.length;
